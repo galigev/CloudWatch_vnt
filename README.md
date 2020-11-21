@@ -20,7 +20,7 @@ Run:
 	
    `npm install`
 
-## Run Server
+## Run Web Site
 
 Run:
 

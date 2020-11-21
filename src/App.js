@@ -25,22 +25,23 @@ const App = (props) => {
 
     if (validate.ipv4(ipAddress)) {
 
-      try {
-        let res = await axios.get("http://127.0.0.1:3000/getCpuUtilization", {
-          params: {
-            ipAddress: ipAddress,
-            date: date,
-            period: period
-          }
+      let res = await axios.get("http://127.0.0.1:3000/getCpuUtilization", {
+        params: {
+          ipAddress: ipAddress,
+          date: date,
+          period: period
+        }
 
-        })
+      })
 
+      if (res.data["error"] !== undefined) {
+        setChartData();
+        alert(res.data.error);
+      }
+      else
         setChartData(res.data.Datapoints);
-      }
-      catch (e) {
-        console.log(e);
-        alert(JSON.stringify(e));
-      }
+
+
     }
     else {
       alert("Please insert valid IP");
@@ -76,7 +77,7 @@ const App = (props) => {
         </label>
       </div>
       <div className="chart">
-        <Chart data={chartData} period={period} date={date}/>
+        <Chart data={chartData} period={period} date={date} />
       </div>
     </div>
   );

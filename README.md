@@ -29,3 +29,5 @@ Run:
 
 The website will open on 'localhost:3001'
 
+Make sure to run the server on https://github.com/galigev/CloudWatch_server.git
+

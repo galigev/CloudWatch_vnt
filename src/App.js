@@ -1,25 +1,85 @@
-import logo from './logo.svg';
+import React, { useState } from "react";
+
+import Chart from './Chart.js';
+
 import './App.css';
 
-function App() {
+const App = (props) => {
+
+  const axios = require('axios');
+  const validate = require('ip-validator');
+
+  const [ipAddress, setIpAddress] = useState();
+  const [date, setDate] = useState('last_day');
+  const [period, setPeriod] = useState(60);
+  const [chartData, setChartData] = useState([]);
+
+  const MAX_PERIOD = 6000;
+  const periods = [];
+
+  for (let i = 60; i <= MAX_PERIOD; i += 60) {
+    periods.push(<option key={i} value={i}>{i}</option>);
+  }
+
+  const onLoad = async () => {
+
+    if (validate.ipv4(ipAddress)) {
+
+      try {
+        let res = await axios.get("http://127.0.0.1:3000/getCpuUtilization", {
+          params: {
+            ipAddress: ipAddress,
+            date: date,
+            period: period
+          }
+
+        })
+
+        setChartData(res.data.Datapoints);
+      }
+      catch (e) {
+        console.log(e);
+        alert(JSON.stringify(e));
+      }
+    }
+    else {
+      alert("Please insert valid IP");
+    }
+
+  }
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <title>AWS Instance CPU usage</title>
       </header>
+      <h1>AWS Instance CPU usage</h1>
+      <div className="aws_input">
+        <label>
+          Time Period:
+          <select id='input_date' value={date} onChange={event => setDate(event.target.value)}>
+            <option value="last_day">Last Day</option>
+            <option value="last_week">Last Week</option>
+            <option value="last_month">Last 30 Days</option>
+          </select>
+        </label>
+        <label>
+          Period:
+           <select id='input_period' value={period} onChange={event => setPeriod(event.target.value)}>
+            {periods}
+          </select>
+        </label>
+        <label>
+          IP Address:
+        <input type='text' id='input_ipAddress' value={ipAddress} onChange={event => setIpAddress(event.target.value)} />
+          <input className="submit" type="submit" value='Load' onClick={onLoad} />
+        </label>
+      </div>
+      <div className="chart">
+        <Chart data={chartData} period={period} date={date}/>
+      </div>
     </div>
   );
-}
+};
 
 export default App;
